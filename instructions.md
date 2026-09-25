@@ -9,7 +9,7 @@
 
 This service is the server side of RustDesk: the ID server your devices register with and find each other through, and the relay that carries a session when two devices cannot connect directly. The apps you install on your computers and phones are the free RustDesk clients from upstream; nothing on this server has a screen of its own.
 
-It exposes one interface, **RustDesk**, covering the five ports the clients use. Every client must present this server's key, which the server generates on its first start, so nobody can register a device against your server without it.
+It exposes one interface, **RustDesk**, covering the three ports the clients use. Every client must present this server's key, which the server generates on its first start, so nobody can register a device against your server without it.
 
 ## Getting set up
 
@@ -19,7 +19,7 @@ It exposes one interface, **RustDesk**, covering the five ports the clients use.
 4. In the client, open **Settings**, then **Network**, then **ID/Relay server**. Enter the ID server address, paste the key, and leave the relay server blank unless Connection Details told you otherwise.
 5. The client's home screen shows **Ready** once it has registered. Do the same on a second device, then connect to it by the ID the client displays.
 
-Use an address each device can actually reach: the LAN address at home, and a public address from anywhere else. To reach the server from outside your network, enable a public address on the **RustDesk** interface. If that address is your home router's, also make sure the router forwards ports 21115–21119, TCP and UDP, to this server.
+Use an address each device can actually reach: the LAN address at home, and a public address from anywhere else. To reach the server from outside your network, enable a public address on the **RustDesk** interface. If that address is your home router's, also make sure the router forwards ports 21115–21117, TCP and UDP, to this server.
 
 To give the server a name such as `rustdesk.example.com`, create a DNS record at your DNS provider pointing the name at that public address, and enter the name in each client instead of the address. Do not add the name to the RustDesk interface in StartOS: the clients do not need StartOS to know it, and adding a domain to this interface currently fails with "binding not found for internal port".
 
@@ -42,4 +42,5 @@ A restore brings back the server's key, so no client needs changing. It does not
 
 ## Limitations
 
+- RustDesk's browser client (rustdesk.com/web) cannot use this server. Use the RustDesk app on each device.
 - This service has been tested on x86_64 (Intel and AMD) servers only. It is built for ARM servers too, but has not yet been run on one.

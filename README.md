@@ -9,7 +9,7 @@
 > the upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[RustDesk Server](https://github.com/rustdesk/rustdesk-server) is the self-hosted half of the RustDesk remote desktop system: `hbbs`, the ID/rendezvous server that devices register with and find each other through, and `hbbr`, the relay that carries a session when NAT traversal fails. This package runs upstream's two binaries unmodified as two daemons on one shared data directory, binds their five ports as a single port range so TCP and UDP travel together, and surfaces the server's public key, which every client must present, through an action. There is no web UI, no account, and no password anywhere in the system.
+[RustDesk Server](https://github.com/rustdesk/rustdesk-server) is the self-hosted half of the RustDesk remote desktop system: `hbbs`, the ID/rendezvous server that devices register with and find each other through, and `hbbr`, the relay that carries a session when NAT traversal fails. This package runs upstream's two binaries unmodified as two daemons on one shared data directory, binds the three ports the RustDesk apps use as a single port range so TCP and UDP travel together, and surfaces the server's public key, which every client must present, through an action. There is no web UI, no account, and no password anywhere in the system.
 
 ---
 
@@ -78,10 +78,10 @@ One port-range interface covers every port the clients use. A range binds TCP an
 | `rustdesk` | `api` | 21115          | `hbbs` | TCP       | NAT type test, and the loopback runtime console |
 |            |       | 21116          | `hbbs` | TCP + UDP | device registration, rendezvous, hole punching  |
 |            |       | 21117          | `hbbr` | TCP       | relayed sessions                                |
-|            |       | 21118          | `hbbs` | TCP       | WebSocket rendezvous for the browser client     |
-|            |       | 21119          | `hbbr` | TCP       | WebSocket relay for the browser client          |
 
-The range asks for the same external ports; if StartOS assigns a different block, the whole range shifts by one offset and `connection-details` reports the shifted ports. Range interfaces are IPv4-only and carry no TLS, which matches upstream: the RustDesk protocol encrypts itself end to end with the server key and each device's own key pair, and the WebSocket ports serve plain `ws://`. Public addresses are disabled on the range until the user enables one, as with every range interface. Enabling a StartTunnel gateway's public IP creates the tunnel's port forward for the whole block; a home router's public IP needs the router to forward 21115–21119, TCP and UDP.
+Upstream's two WebSocket listeners, 21118 on `hbbs` and 21119 on `hbbr`, run inside the container but are deliberately outside the range; see [Limitations](#limitations-and-differences).
+
+The range asks for the same external ports; if StartOS assigns a different block, the whole range shifts by one offset and `connection-details` reports the shifted ports. Range interfaces are IPv4-only and carry no TLS, which matches upstream: the RustDesk protocol encrypts itself end to end with the server key and each device's own key pair. Public addresses are disabled on the range until the user enables one, as with every range interface. Enabling a StartTunnel gateway's public IP creates the tunnel's port forward for the whole block; a home router's public IP needs the router to forward 21115–21117, TCP and UDP.
 
 A DNS name for the server needs nothing from StartOS. Nothing in the protocol carries a host name (no TLS, no SNI, no HTTP `Host`), so a client that resolves the name to the enabled public IP reaches the range by port alone. Verified through StartTunnel with a name whose A record points at the tunnel's public IP and that was never attached to the interface: a phone on mobile data registered and held sessions through it. Attaching the name as a public domain is not possible today (see [Limitations](#limitations-and-differences)); the only cost is that `connection-details` lists the IP, not the name.
 
@@ -152,7 +152,7 @@ The address choices on the `rustdesk` interface are not in the backup: which add
 4. The loopback runtime consoles on 21115 and 21117 are reachable only from inside the container, which has no shell, so they are effectively unavailable.
 5. There is no web console, API port (21114), or user management: those belong to RustDesk Server Pro, which is a separate, licensed product and not what this package ships.
 6. The key pair cannot be rotated or imported through the package. A new key means uninstalling, reinstalling, and reconfiguring every client.
-7. The WebSocket ports (21118, 21119) are bound because upstream listens on them, and serve plain `ws://` only. RustDesk's web client has not been tested against this package. It is served over HTTPS (`rustdesk.com/web` redirects there), and a browser refuses a plain `ws://` connection from an HTTPS page, so it is not expected to work without a TLS proxy, which the package does not provide.
+7. The WebSocket listeners (21118 on `hbbs`, 21119 on `hbbr`) are not exported. Upstream takes a WebSocket client's address from its `X-Real-IP` or `X-Forwarded-For` header without validating it, so exposing those ports directly would let anyone evade `hbbs`'s per-IP limits and the relay's blocklist and write false addresses into the log; upstream requires a reverse proxy that sets the header in front of them. The key check does not depend on the address and is unaffected either way. As a result, RustDesk's web client and a desktop client with its `allow-websocket` option on cannot use this server. The web client would also need `wss://` with a certificate the browser trusts, which the package does not provide.
 8. Range interfaces are IPv4-only.
 9. A relay address set through `configure` is resolved by `hbbs` once, at start, and silently dropped if resolution fails; `.local` names never resolve inside the container. The log line `relay-servers=[...]` at each start shows what survived. An IP or a public DNS name is safe.
 10. A public domain cannot be attached to the `rustdesk` interface. The web UI and `start-cli ... domain public add` both fail with `binding not found for internal port 21115` and roll back, because the OS looks the port up among single-port bindings only, and this host has only a range. A plain DNS record works instead (see [Network Access and Interfaces](#network-access-and-interfaces)).
@@ -177,7 +177,7 @@ startos_managed_env_vars:
   - RUST_LOG
 dependencies: none
 interfaces:
-  rustdesk: { type: api, port: 21115, port_range: 5 }
+  rustdesk: { type: api, port: 21115, port_range: 3 }
 actions:
   - connection-details
   - configure

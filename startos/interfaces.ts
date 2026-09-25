@@ -3,7 +3,7 @@ import { sdk } from './sdk'
 import { firstPort, hostId, numberOfPorts, rangeInterfaceId } from './utils'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
-  // One contiguous block: 21115-21119. A range binds TCP and UDP together,
+  // One contiguous block: 21115-21117. A range binds TCP and UDP together,
   // which the ID server's port needs, and forwards the whole block by offset
   // when the user enables a public address.
   const range = await sdk.MultiHost.of(effects, hostId).bindPortRange({

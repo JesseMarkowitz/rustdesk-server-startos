@@ -1,13 +1,14 @@
-// hbbs (the ID/rendezvous server) and hbbr (the relay) bind five consecutive
-// ports. The package binds them as one range so TCP and UDP travel together
-// and a public address, once enabled, forwards the whole block.
+// hbbs (the ID/rendezvous server) and hbbr (the relay) listen on five
+// consecutive ports. The package exposes the first three as one range, so TCP
+// and UDP travel together and a public address, once enabled, forwards the
+// whole block. The other two, 21118 (hbbs) and 21119 (hbbr), are WebSocket
+// listeners that take a client's address from an unvalidated X-Real-IP header,
+// so they stay unexported: upstream requires a proxy that sets it in front.
 export const natTestPort = 21115 // hbbs, TCP: NAT type test
 export const idServerPort = 21116 // hbbs, TCP + UDP: registration, hole punching
 export const relayPort = 21117 // hbbr, TCP: relayed sessions
-export const idServerWsPort = 21118 // hbbs, TCP: WebSocket for the browser client
-export const relayWsPort = 21119 // hbbr, TCP: WebSocket relay for the browser client
 export const firstPort = natTestPort
-export const numberOfPorts = 5
+export const numberOfPorts = 3
 
 export const hostId = 'rustdesk'
 export const rangeInterfaceId = 'rustdesk'
