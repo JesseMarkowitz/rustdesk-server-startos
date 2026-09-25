@@ -5,7 +5,7 @@ export const manifest = setupManifest({
   id: 'rustdesk-server',
   title: 'RustDesk Server',
   license: 'AGPL-3.0',
-  packageRepo: 'https://github.com/JesseMarkowitz/rustdesk-server-startos',
+  packageRepo: 'https://github.com/Start9-Community/rustdesk-server-startos',
   upstreamRepo: 'https://github.com/rustdesk/rustdesk-server',
   marketingUrl: 'https://rustdesk.com/',
   donationUrl: null,
