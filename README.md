@@ -9,7 +9,7 @@
 > the upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[RustDesk Server](https://github.com/rustdesk/rustdesk-server) is the self-hosted half of the RustDesk remote desktop system: `hbbs`, the ID/rendezvous server that devices register with and find each other through, and `hbbr`, the relay that carries a session when NAT traversal fails. This package runs upstream's two binaries unmodified as two daemons on one shared data directory, binds the three ports the RustDesk apps use as a single port range so TCP and UDP travel together, and surfaces the server's public key, which every client must present, through an action. There is no web UI, no account, and no password anywhere in the system.
+RustDesk Server is the self-hosted half of the RustDesk remote desktop system: `hbbs`, the ID/rendezvous server that devices register with and find each other through, and `hbbr`, the relay that carries a session when NAT traversal fails. This package runs upstream's two binaries unmodified as two daemons on one shared data directory, binds the three ports the RustDesk apps use as a single port range so TCP and UDP travel together, and surfaces the server's public key, which every client must present, through an action. There is no web UI, no account, and no password anywhere in the system.
 
 ---
 
@@ -115,10 +115,10 @@ None. The service is never held on a prompt and its ordinary controls are always
 
 Two, one per daemon, each a port-listening check with no network I/O and the SDK's default 10-second grace period, during which a failure shows as starting. Both ports bind within a second of launch, so a check still failing after the grace period is a daemon that exited.
 
-| Check  | Probes          | Failure means                                                                                                                                                       |
-| ------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `hbbs` | TCP 21116 bound | `hbbs` exited. Its log shows why; the two known causes are a failed UDP self-test (the process exits with `Failed to run hbbs test`) and a corrupt `db_v2.sqlite3`. |
-| `hbbr` | TCP 21117 bound | `hbbr` exited, or `hbbs` never became healthy so `hbbr` was never started (its status reads "waiting on hbbs").                                                     |
+| Check                 | Probes          | Failure means                                                                                                                                                       |
+| --------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID Server (`hbbs`)    | TCP 21116 bound | `hbbs` exited. Its log shows why; the two known causes are a failed UDP self-test (the process exits with `Failed to run hbbs test`) and a corrupt `db_v2.sqlite3`. |
+| Relay Server (`hbbr`) | TCP 21117 bound | `hbbr` exited, or `hbbs` never became healthy so `hbbr` was never started (its status reads "waiting on hbbs").                                                     |
 
 A port that is bound is a daemon that is up; neither check proves a client can reach the server, which depends on the address and forwarding the user chose. A client that shows anything other than "Ready" while both checks are green has a network path problem, not a server problem.
 
@@ -145,6 +145,8 @@ A restore brings back the key pair, so every client keeps working without change
 The address choices on the `rustdesk` interface are not in the backup: which addresses are enabled is StartOS network state, not package data, and uninstalling discards it. A restore after an uninstall therefore comes back reachable on the LAN only, with the range on but no public address enabled and no tunnel or router forward, and every remote client fails to connect until the public address is enabled again. Nothing on the clients needs changing once it is. Verified by an uninstall and restore: the key came back (`Private key comes from id_ed25519` at the first start, same `Key:` line), and the one difference in the host record was the enabled public address and its port forward.
 
 ## Limitations and Differences
+
+Where this package departs from, or cannot offer, what upstream RustDesk Server does.
 
 1. Upstream's `rustdesk-server-s6` image and its `RELAY`, `ENCRYPTED_ONLY`, `KEY_PUB` and `KEY_PRIV` variables are not used. The classic image runs instead, and the equivalents are fixed or exposed as described under [File Models](#file-models).
 2. The relay validates the key (`hbbr -k -`), which upstream's default does not. A client that reaches the relay without the key is refused.

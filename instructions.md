@@ -7,7 +7,7 @@
 
 ## What you get on StartOS
 
-This service is the server side of RustDesk: the ID server your devices register with and find each other through, and the relay that carries a session when two devices cannot connect directly. The apps you install on your computers and phones are the free RustDesk clients from upstream; nothing on this server has a screen of its own.
+There is no web page to open: the apps you install on your computers and phones are the free RustDesk clients, and this server is where they connect.
 
 It exposes one interface, **RustDesk**, covering the three ports the clients use. Every client must present this server's key, which the server generates on its first start, so nobody can register a device against your server without it.
 
@@ -27,11 +27,11 @@ To give the server a name such as `rustdesk.example.com`, create a DNS record at
 
 ### Connection Details
 
-Run it whenever you set up a new client, or if you need the key again. It lists the addresses currently enabled on the RustDesk interface. Every device must use the same key, so if the key is ever lost the service can be uninstalled and reinstalled to get a new one, after which every client must be updated.
+Run it whenever you set up a new client, or if you need the key again. It lists the addresses currently enabled on the RustDesk interface. Every device must use the same key. If the key is ever exposed to someone you do not trust, uninstall and reinstall the service to get a new one, then update every client.
 
 ### Configure
 
-Two settings, both applied on the next start:
+Saving either setting restarts the server, which drops any session in progress for a few seconds.
 
 - **Always use the relay** sends every session through this server instead of letting two devices connect directly. Sessions are slower. Use it when direct connections fail or are unreliable; it does not hide your address from the device you connect to.
 - **Relay address** is only for an unusual network where the relay is reachable at a different name or port than the ID server. Leave it blank otherwise. If you do set it, use an IP address or a public DNS name; the server ignores a name it cannot look up.
