@@ -212,6 +212,7 @@ export const connectionDetails = sdk.Action.withoutInput(
         masked: false,
         copyable: true,
         qr: false,
+        launchable: false,
       }))
 
     return {
@@ -251,6 +252,7 @@ export const connectionDetails = sdk.Action.withoutInput(
             masked: false,
             copyable: true,
             qr: true,
+            launchable: false,
           },
         ],
       },

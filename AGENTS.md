@@ -35,7 +35,7 @@ verified, tried, and decided belongs in the commit message and the PR body.
 ## This repo
 
 - **Keep the `Dockerfile`; do not switch the manifest to `dockerTag`.** The upstream image has
-  no `CMD` and no `/etc/passwd`, so the pack and the daemons both fail without it. The upstream
+  no `CMD`, no `/etc/passwd` and no `/proc`, so the pack and the daemons both fail without it. The upstream
   version is pinned on the `FROM` line, not in `startos/manifest/index.ts`.
 - **`hbbr` must `requires: ['hbbs']`.** Started first, it generates its own key pair and the two
   daemons disagree.

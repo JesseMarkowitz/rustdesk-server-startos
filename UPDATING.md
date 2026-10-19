@@ -2,8 +2,8 @@
 
 Upstream is the `rustdesk/rustdesk-server` Docker image, the "classic" variant built
 `FROM scratch` with the `hbbs` and `hbbr` binaries and nothing else. The package builds its
-own image `FROM` it (see `Dockerfile`) to add a `CMD` and an `/etc/passwd`, both of which
-StartOS needs and the upstream image lacks. The pin lives in the `Dockerfile`, not in
+own image `FROM` it (see `Dockerfile`) to add a `CMD`, an `/etc/passwd` and an empty `/proc`,
+all of which StartOS needs and the upstream image lacks. The pin lives in the `Dockerfile`, not in
 `startos/manifest/index.ts`.
 
 ## Determining the upstream version
