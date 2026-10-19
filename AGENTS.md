@@ -39,5 +39,5 @@ verified, tried, and decided belongs in the commit message and the PR body.
   version is pinned on the `FROM` line, not in `startos/manifest/index.ts`.
 - **`hbbr` must `requires: ['hbbs']`.** Started first, it generates its own key pair and the two
   daemons disagree.
-- **Change `clientHostnames` in `connection-details` whenever the OS's address rules change.** A
+- **Change `clientAddresses` in `connection-details` whenever the OS's address rules change.** A
   port-range binding has no filled `addressInfo`, so the action reapplies those rules itself.
