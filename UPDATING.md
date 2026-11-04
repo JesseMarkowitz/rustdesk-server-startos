@@ -24,11 +24,7 @@ versioned separately.
 ## Applying the bump
 
 1. Set the tag on the `FROM rustdesk/rustdesk-server:` line in `Dockerfile`.
-2. Set `version` in `startos/versions/current.ts` to `X.Y.Z:0` and summarize upstream's release
-   notes in `releaseNotes`.
-3. Check the three facts the package relies on still hold: `hbbs` loads or generates
+2. Check the three facts the package relies on still hold: `hbbs` loads or generates
    `id_ed25519` / `id_ed25519.pub` in its working directory by default, `hbbr -k -` loads that
    same pair, and `ALWAYS_USE_RELAY` / `-r` still exist (`startos/main.ts` names each).
    `docs/environment-variables.md` in the upstream repo is the reference.
-4. The server's SQLite peer database is created and migrated by `hbbs`; upstream does not
-   document a downgrade path, so `down: IMPOSSIBLE` stays.
